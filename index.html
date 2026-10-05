@@ -1,1083 +1,374 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hugo Thomas — Engineer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0e0e0e;
-    --surface: #161616;
-    --border: #2a2a2a;
-    --text: #e8e4dc;
-    --muted: #6a6560;
-    --accent: #c9a84c;
-    --accent-dim: rgba(201,168,76,0.12);
-    --accent-glow: rgba(201,168,76,0.06);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 300;
-    line-height: 1.7;
-    overflow-x: hidden;
-  }
-
-  /* HAMBURGER BUTTON */
-  .hamburger {
-    position: fixed;
-    bottom: 2.5rem;
-    right: 2.5rem;
-    z-index: 200;
-    width: 3rem;
-    height: 3rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 0;
-    transition: border-color 0.2s, background 0.2s;
-  }
-
-  .hamburger:hover {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-  }
-
-  .hamburger span {
-    display: block;
-    width: 1.1rem;
-    height: 1px;
-    background: var(--text);
-    transition: background 0.2s;
-  }
-
-  .hamburger:hover span { background: var(--accent); }
-
-  /* MENU OVERLAY */
-  .menu-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 300;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  .menu-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .menu-panel {
-    position: absolute;
-    top: 0; right: 0; bottom: 0;
-    width: min(420px, 90vw);
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 4rem 3rem;
-    transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .menu-overlay.open .menu-panel {
-    transform: translateX(0);
-  }
-
-  .menu-close {
-    position: absolute;
-    top: 1.5rem; right: 1.5rem;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 0.75rem;
-    width: 2rem; height: 2rem;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  .menu-close:hover { color: var(--accent); border-color: var(--accent); }
-
-  .menu-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .menu-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding: 1.8rem 0;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none;
-    color: var(--text);
-    transition: padding-left 0.2s;
-    position: relative;
-  }
-
-  .menu-item:first-child { border-top: 1px solid var(--border); }
-
-  .menu-item:hover { padding-left: 0.6rem; }
-
-  .menu-item:hover .menu-label { color: var(--accent); }
-
-  .menu-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-  }
-
-  .menu-label {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2rem;
-    line-height: 1.1;
-    transition: color 0.2s;
-  }
-
-  .menu-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-top: 0.1rem;
-  }
-
-  /* HERO RIGHT DECO */
-  .hero-right-deco {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    opacity: 0.15;
-  }
-
-  .deco-line {
-    display: block;
-    width: 1px;
-    height: 40%;
-    background: var(--accent);
-  }
-
-  /* NAV (hidden, kept for scroll reference) */
-  nav#mainNav { display: none; }
-  .nav-trigger { display: none; }
-
-  /* HERO */
-  .hero {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding-top: 5rem;
-  }
-
-  .hero-left {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 6rem 5rem 6rem 5rem;
-    border-right: 1px solid var(--border);
-    position: relative;
-  }
-
-  .hero-eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    margin-bottom: 2rem;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.1s forwards;
-  }
-
-  .hero-name {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(3.5rem, 6vw, 6rem);
-    line-height: 1.05;
-    margin-bottom: 0.4rem;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.25s forwards;
-  }
-
-  .hero-name em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .hero-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(1.1rem, 2vw, 1.5rem);
-    color: var(--muted);
-    font-weight: 400;
-    margin-bottom: 2.5rem;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.4s forwards;
-  }
-
-  .hero-philosophy {
-    font-size: 1rem;
-    color: var(--text);
-    max-width: 480px;
-    line-height: 1.85;
-    border-left: 2px solid var(--accent);
-    padding-left: 1.5rem;
-    margin-bottom: 3rem;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.55s forwards;
-  }
-
-  .hero-meta {
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.7s forwards;
-  }
-
-  .meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-
-  .meta-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-  }
-
-  .meta-value {
-    font-size: 0.9rem;
-    color: var(--text);
-  }
-
-  .hero-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 6rem 4rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-right::before {
-    content: '';
-    position: absolute;
-    top: 20%;
-    right: -20%;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 65%);
-    pointer-events: none;
-  }
-
-  .hero-index {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.8s forwards;
-  }
-
-  .index-item {
-    display: flex;
-    align-items: center;
-    padding: 1.4rem 0;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none;
-    color: var(--text);
-    transition: all 0.2s;
-    gap: 1.5rem;
-  }
-
-  .index-item:first-child { border-top: 1px solid var(--border); }
-
-  .index-item:hover {
-    color: var(--accent);
-    padding-left: 0.5rem;
-  }
-
-  .index-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    min-width: 2rem;
-  }
-
-  .index-label {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.2rem;
-    flex: 1;
-  }
-
-  .index-arrow {
-    color: var(--muted);
-    font-size: 0.8rem;
-    transition: transform 0.2s, color 0.2s;
-  }
-
-  .index-item:hover .index-arrow {
-    transform: translateX(4px);
-    color: var(--accent);
-  }
-
-  /* SECTIONS */
-  section {
-    padding: 8rem 5rem;
-    border-top: 1px solid var(--border);
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: baseline;
-    gap: 1.5rem;
-    margin-bottom: 5rem;
-  }
-
-  .section-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-  }
-
-  .section-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2rem, 4vw, 3.2rem);
-    line-height: 1.1;
-  }
-
-  /* CHRONERGY */
-  .chronergy-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-bottom: 4rem;
-  }
-
-  .c-cell {
-    background: var(--surface);
-    padding: 2.5rem;
-  }
-
-  .c-cell-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    margin-bottom: 0.8rem;
-  }
-
-  .c-cell-value {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2.2rem;
-    line-height: 1.1;
-    margin-bottom: 0.5rem;
-  }
-
-  .c-cell-desc {
-    font-size: 0.85rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  .c-cell.span2 { grid-column: span 2; }
-
-  .c-cell-body {
-    font-size: 0.95rem;
-    color: var(--text);
-    line-height: 1.85;
-  }
-
-  .tag-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  .tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
-    background: var(--border);
-    padding: 0.3rem 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  /* PYTHON SECTION */
-  .python-layout {
-    display: grid;
-    grid-template-columns: 1fr 1.6fr;
-    gap: 4rem;
-    align-items: start;
-  }
-
-  .stat-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 2rem;
-  }
-
-  .stat-num {
-    font-family: 'DM Serif Display', serif;
-    font-size: 4rem;
-    color: var(--accent);
-    line-height: 1;
-    display: block;
-    margin-bottom: 0.3rem;
-  }
-
-  .stat-unit {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 0.6rem;
-    display: block;
-  }
-
-  .stat-desc {
-    font-size: 0.85rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  .stats-row {
-    display: flex;
-    gap: 1px;
-    background: var(--border);
-    margin-bottom: 2rem;
-  }
-
-  .stats-row .stat-block {
-    flex: 1;
-    border: none;
-    border-radius: 0;
-  }
-
-  .flow-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .flow-step {
-    display: flex;
-    gap: 1.5rem;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--border);
-    align-items: flex-start;
-  }
-
-  .flow-step:last-child { border-bottom: none; }
-
-  .step-icon {
-    width: 2rem;
-    height: 2rem;
-    background: var(--accent-dim);
-    border: 1px solid rgba(201,168,76,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--accent);
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
-
-  .step-content h4 {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-bottom: 0.3rem;
-    color: var(--text);
-  }
-
-  .step-content p {
-    font-size: 0.82rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  /* MECHANICAL DESIGN */
-  .mech-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 2px;
-    background: var(--border);
-  }
-
-  .mech-card {
-    background: var(--surface);
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    transition: background 0.2s;
-  }
-
-  .mech-card:hover { background: #1c1c1c; }
-
-  .mech-card-period {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .mech-card-company {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
-    line-height: 1.1;
-  }
-
-  .mech-card-role {
-    font-size: 0.8rem;
-    color: var(--accent);
-    font-family: 'DM Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .mech-card-body {
-    font-size: 0.88rem;
-    color: var(--muted);
-    line-height: 1.75;
-    flex: 1;
-  }
-
-  .mech-card-highlight {
-    background: var(--accent-dim);
-    border-left: 2px solid var(--accent);
-    padding: 0.8rem 1rem;
-    font-size: 0.82rem;
-    color: var(--text);
-    line-height: 1.6;
-    font-style: italic;
-  }
-
-  /* MECHANICAL SECTIONS */
-  .mech-section {
-    padding: 7rem 5rem;
-  }
-
-  .mech-section-inner {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 6rem;
-    align-items: start;
-  }
-
-  .mech-section-left {
-    position: sticky;
-    top: 6rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .mech-section-company {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.5rem, 4vw, 3.8rem);
-    line-height: 1.05;
-    color: var(--text);
-  }
-
-  .mech-section-right {
-    padding-top: 0.2rem;
-  }
-
-  .mech-section-body {
-    font-size: 1rem;
-    color: var(--muted);
-    line-height: 1.9;
-  }
-
-  /* FOOTER */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 4rem 5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .footer-left {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.2rem;
-  }
-
-  .footer-contact {
-    display: flex;
-    gap: 3rem;
-  }
-
-  .contact-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-
-  .contact-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-
-  .contact-value {
-    font-size: 0.9rem;
-    color: var(--text);
-  }
-
-  .contact-link {
-    font-size: 0.9rem;
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(201,168,76,0.3);
-    transition: border-color 0.2s;
-  }
-
-  .contact-link:hover { border-color: var(--accent); }
-
-  /* FULL WIDTH WRAPPER */
-  .full-width {
-    border-top: 1px solid var(--border);
-  }
-
-  /* ANIMATIONS */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* SECTION SEPARATOR LINE */
-  .divider {
-    width: 3rem;
-    height: 1px;
-    background: var(--accent);
-    margin: 2.5rem 0;
-  }
-
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    nav { padding: 1rem 1.5rem; }
-    .nav-links { gap: 1.2rem; }
-    .hero { grid-template-columns: 1fr; }
-    .hero-left { padding: 5rem 2rem 3rem; border-right: none; border-bottom: 1px solid var(--border); }
-    .hero-right { padding: 3rem 2rem; }
-    section { padding: 5rem 1.5rem; }
-    .chronergy-grid { grid-template-columns: 1fr; }
-    .c-cell.span2 { grid-column: span 1; }
-    .python-layout { grid-template-columns: 1fr; }
-    .mech-section { padding: 4rem 1.5rem; }
-    .mech-section-inner { grid-template-columns: 1fr; gap: 2rem; }
-    .mech-section-left { position: static; }
-    footer { flex-direction: column; gap: 2rem; padding: 3rem 1.5rem; }
-  }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hugo Thomas · Race Engineer</title>
+  <meta name="description" content="Hugo Thomas, race engineer based in Zürich. Ferrari Challenge, telemetry, simulation software and Python automation.">
+  <meta property="og:title" content="Hugo Thomas · Race Engineer">
+  <meta property="og:description" content="Race engineering, data and the tools around them.">
+  <meta property="og:image" content="assets/hugo-octane126.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="nav-trigger" id="navTrigger"></div>
-<nav id="mainNav">
-  <ul class="nav-links">
-    <li><a href="#chronergy">Chronergy126</a></li>
-    <li><a href="#python">Automation</a></li>
-    <li><a href="#mechanical">Design</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-left">
-    <span class="hero-eyebrow">Portfolio · Zürich, Switzerland</span>
-    <h1 class="hero-name">Hugo<br><em>Thomas</em></h1>
-    <p class="hero-title">Mechanical Design & Race Engineer</p>
-    <blockquote class="hero-philosophy">
-      I'm pulled toward challenges. Hard ones, where the conditions are tough and the answer isn't obvious. That's the thread through everything I've done — batteries, GT3, LMDh, race engineering, simulation software. The field kept changing, but the motivation never did.
-    </blockquote>
-    <div class="hero-meta">
-      <div class="meta-item">
-        <span class="meta-label">Based</span>
-        <span class="meta-value">Zürich, CH</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Nationality</span>
-        <span class="meta-value">French</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Languages</span>
-        <span class="meta-value">FR · EN</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Education</span>
-        <span class="meta-value">M.Eng · JUNIA-HEI Lille</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="hero-right">
-    <div class="hero-right-deco">
-      <span class="deco-line"></span>
-    </div>
-  </div>
-</div>
-
-<!-- HAMBURGER BUTTON -->
-<button class="hamburger" id="hamburger" aria-label="Open menu">
-  <span></span>
-  <span></span>
-  <span></span>
-</button>
-
-<!-- MENU OVERLAY -->
-<div class="menu-overlay" id="menuOverlay">
-  <div class="menu-panel">
-    <button class="menu-close" id="menuClose" aria-label="Close menu">✕</button>
-    <nav class="menu-nav">
-      <a href="#chronergy" class="menu-item" data-num="01">
-        <span class="menu-num">01</span>
-        <span class="menu-label">Chronergy126</span>
-        <span class="menu-sub">Race Simulation Platform</span>
-      </a>
-      <a href="#python" class="menu-item" data-num="02">
-        <span class="menu-num">02</span>
-        <span class="menu-label">Automation</span>
-        <span class="menu-sub">Python Stint Report Pipeline</span>
-      </a>
-      <a href="#mechanical" class="menu-item" data-num="03">
-        <span class="menu-num">03</span>
-        <span class="menu-label">Design</span>
-        <span class="menu-sub">ORECA · SOCOFER · SAINTéLOC</span>
-      </a>
-      <a href="#contact" class="menu-item" data-num="04">
-        <span class="menu-num">04</span>
-        <span class="menu-label">Contact</span>
-        <span class="menu-sub">Zürich, Switzerland</span>
-      </a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#">Hugo Thomas<span>.</span></a>
+    <nav>
+      <a href="#motorsport">Motorsport</a>
+      <a class="hide-sm" href="#gallery">Gallery</a>
+      <a href="#recreation">Recreation</a>
+      <a class="hide-sm" href="assets/hugo-thomas-resume.pdf" target="_blank" rel="noopener">Resume</a>
+      <a href="#contact">Contact</a>
     </nav>
   </div>
-</div>
+</header>
 
-<!-- CHRONERGY -->
-<div class="full-width" id="chronergy">
-<section>
-  <div class="section-header">
-    <span class="section-num">01</span>
-    <h2 class="section-title">Chronergy126<br>Race Simulation Platform</h2>
-  </div>
+<main>
 
-  <div class="chronergy-grid">
-    <div class="c-cell span2">
-      <div class="c-cell-label">Project Overview</div>
-      <div class="c-cell-body">
-        Chronergy126 is a cloud-based web application built to centralise race engineering workflows: session planning, telemetry analysis, simulation, strategy, and reporting, all in one platform. The project grew out of a concrete gap identified on the pit wall — existing tools were fragmented, slow, and not built for the pace of a race weekend. I built this to close that gap.
-      </div>
-      <div class="tag-row">
-        <span class="tag">Next.js 14</span>
-        <span class="tag">TypeScript</span>
-        <span class="tag">Tailwind CSS</span>
-        <span class="tag">Python FastAPI</span>
-        <span class="tag">PostgreSQL</span>
-        <span class="tag">Azure</span>
-        <span class="tag">Figma</span>
-      </div>
-    </div>
-
-    <div class="c-cell">
-      <div class="c-cell-label">Simulation Performance</div>
-      <div class="c-cell-value">~25 min</div>
-      <div class="c-cell-desc">to run 200 simulations in parallel across 4 cloud machines — a task that would take days sequentially</div>
-    </div>
-
-    <div class="c-cell">
-      <div class="c-cell-label">Product Scale</div>
-      <div class="c-cell-value">16 modules<br>300+ screens</div>
-      <div class="c-cell-desc">full design system in Figma, handed over to a 6-person external development team</div>
-    </div>
-
-    <div class="c-cell">
-      <div class="c-cell-label">My Role</div>
-      <div class="c-cell-body" style="font-size:0.9rem;">
-        I led the project end-to-end as product owner and lead front-end developer. My work spanned the full product lifecycle: concept definition, UX architecture in Figma, developer handoff, user story review, acceptance testing, and ultimately direct front-end development using the Figma-to-code pipeline in Cursor with Claude Code.
-        <div class="divider"></div>
-        Managing a 6-person remote team in Romania while maintaining quality and velocity required building a clear process from scratch — structured reviews, defined acceptance criteria, and a CLAUDE.md context file to keep AI-assisted development consistent across sessions.
-      </div>
-    </div>
-
-    <div class="c-cell">
-      <div class="c-cell-label">Core Engineering Challenge</div>
-      <div class="c-cell-body" style="font-size:0.9rem;">
-        The hardest technical problem was scaling simulation throughput per user. A single simulation runs in ~30 seconds on one machine. The solution: parallel cloud execution across multiple Azure instances, dropping 200 simulations from days of sequential compute to approximately 25 minutes wall-clock time.
-        <div class="divider"></div>
-        This required rethinking the job queuing architecture and how the backend distributed workloads — a problem with real consequences for whether the platform is usable during a live race weekend or just in testing environments.
-      </div>
-    </div>
-
-    <div class="c-cell span2">
-      <div class="c-cell-label">Why It Exists</div>
-      <div class="c-cell-body">
-        Race engineering tooling is stuck in a world of spreadsheets, disconnected apps, and information scattered across a dozen windows. Chronergy126 brings all of it into one place: session plan, tyre allocation tracker, lap time analysis, setup history, simulation runs, and stint reports. The underlying simulation physics — full multibody transient dynamics, a thermal tyre model reverse-engineered from on-track data, virtual 7-post rig analysis, and auto track bump profile reconstruction from logged car data — were developed through years of applied work at the intersection of on-track performance and software.
-      </div>
-    </div>
-  </div>
-</section>
-</div>
-
-<!-- PYTHON -->
-<div class="full-width" id="python">
-<section>
-  <div class="section-header">
-    <span class="section-num">02</span>
-    <h2 class="section-title">Python Automation<br>Stint Report Pipeline</h2>
-  </div>
-
-  <div class="python-layout">
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
     <div>
-      <div class="stats-row">
-        <div class="stat-block">
-          <span class="stat-num">2h</span>
-          <span class="stat-unit">Manual process</span>
-          <span class="stat-desc">Per stint, done by hand across multiple windows and tools</span>
-        </div>
-        <div class="stat-block">
-          <span class="stat-num">5min</span>
-          <span class="stat-unit">Automated</span>
-          <span class="stat-desc">Same output, zero errors, sent directly to the engineering WhatsApp group</span>
-        </div>
-      </div>
-      <div class="stat-block" style="margin-bottom:1px;">
-        <span class="stat-num">24×</span>
-        <span class="stat-unit">Speed improvement</span>
-        <span class="stat-desc">The script runs: data selection, channel parsing, KPI computation (math channels, threshold checks), graph generation, PDF styling and assembly, automated WhatsApp delivery</span>
+      <p class="kicker"><b>Race engineer</b> · Zürich, Switzerland</p>
+      <h1>Hugo<br>Thomas</h1>
+      <p class="lede">I'm drawn to hard problems, the kind where conditions are tough and the answer isn't obvious. That has taken me from railway batteries to GT3 and LMDh builds, onto the pit wall in Ferrari Challenge, and now into race simulation software.</p>
+      <p class="lede">Last season I engineered car 26 in the Ferrari Challenge Trofeo Pirelli Pro: four podiums, including a win at Mugello.</p>
+      <dl class="facts">
+        <dt>Based</dt><dd>Zürich, Swiss permit B</dd>
+        <dt>Languages</dt><dd>French (native), English (C1), German (B1), Spanish (B1)</dd>
+        <dt>Education</dt><dd>Master's in Mechanical Design, HEI Lille</dd>
+        <dt>Status</dt><dd>Available now, happy to travel to events</dd>
+      </dl>
+      <div class="actions">
+        <a class="btn solid" href="assets/hugo-thomas-resume.pdf" target="_blank" rel="noopener">Download resume (PDF)</a>
+        <a class="btn" href="#contact">Get in touch</a>
       </div>
     </div>
-
-    <div>
-      <p style="font-size:0.95rem; color:var(--muted); margin-bottom:2rem; line-height:1.8;">
-        At Octane126, post-stint analysis was done entirely by hand. The data engineer would download car data from the logger, open the analysis software, navigate through channels tab by tab, manually identify anomalies using KPIs they held in their heads, then build a report by printing individual graphs one at a time. Two hours per stint, with no guarantee every relevant graph made it in.
-      </p>
-
-      <div class="flow-steps">
-        <div class="flow-step">
-          <div class="step-icon">01</div>
-          <div class="step-content">
-            <h4>Data Download</h4>
-            <p>Engineer downloads raw car data from the VBOX at the end of a stint. No change to existing hardware workflow.</p>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="step-icon">02</div>
-          <div class="step-content">
-            <h4>Script Launch &amp; File Selection</h4>
-            <p>Single command. Engineer selects the session file. The script handles everything from that point.</p>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="step-icon">03</div>
-          <div class="step-content">
-            <h4>Automated Channel Analysis</h4>
-            <p>Parses all data channels, computes math channels, applies thresholds, flags anomalies. No manual browsing.</p>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="step-icon">04</div>
-          <div class="step-content">
-            <h4>Graph &amp; KPI Generation</h4>
-            <p>Every required graph is generated programmatically, consistently styled, and compiled into a formatted PDF report.</p>
-          </div>
-        </div>
-        <div class="flow-step">
-          <div class="step-icon">05</div>
-          <div class="step-content">
-            <h4>WhatsApp Delivery</h4>
-            <p>Report sent automatically to the engineering group. Engineers have the data before the tyres are cold.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <figure>
+      <img src="assets/hugo-octane126.jpg" width="1600" height="1066" alt="Hugo Thomas on the pit wall with a radio headset, Ferrari Challenge">
+      <figcaption>On the pit wall with Octane126, Ferrari Challenge.</figcaption>
+    </figure>
   </div>
 </section>
-</div>
 
-<!-- MECHANICAL DESIGN HEADER -->
-<div class="full-width" id="mechanical">
-<section style="padding-bottom: 2rem;">
-  <div class="section-header" style="margin-bottom: 0;">
-    <span class="section-num">03</span>
-    <h2 class="section-title">Mechanical Design<br>Programme Engineering</h2>
+<!-- ============ MOTORSPORT ============ -->
+<section id="motorsport">
+  <div class="category">
+    <div class="wrap">
+      <p class="kicker">Category one</p>
+      <h2>Motorsport</h2>
+      <p>Race engineering, data, and the tools I build to make both faster.</p>
+    </div>
+  </div>
+
+  <!-- Race engineering -->
+  <article class="project" id="race-engineering">
+    <div class="wrap">
+      <div class="project-head">
+        <p class="kicker">Race engineering</p>
+        <h3>Octane126</h3>
+        <p class="sub">Race engineer, Ferrari Challenge Trofeo Pirelli Pro</p>
+      </div>
+      <div class="cols">
+        <div class="prose">
+          <div class="meta">
+            <span><b>Feb 2024 to Dec 2025</b></span>
+            <span>Ferrari 296 Challenge, car 26</span>
+            <span>Driver: Björn Grossmann</span>
+          </div>
+          <p>I joined as part of a larger engineering group and ended the season as the only engineer on the car. On a race weekend that meant setup, strategy, tyre windows, pit stop timing and the debriefs with Björn. Between events it meant running the six-person crew and the logistics around it: getting the truck ready, cross-border paperwork, schedules.</p>
+          <ul>
+            <li>Built setup proposals from the track, the conditions and the driver's feedback, using a setup wizard I adapted to the car.</li>
+            <li>Worked on the car model: suspension pick-up points, motion ratios, gear ratios, engine curves and mass.</li>
+            <li>Wrote a Python stint report so the data was ready before the next run (more below).</li>
+          </ul>
+        </div>
+        <div>
+          <table class="timing">
+            <caption>Podiums</caption>
+            <thead><tr><th>Pos</th><th>Circuit</th><th>Class</th></tr></thead>
+            <tbody>
+              <tr class="win"><td class="pos">P1</td><td>Mugello</td><td>Trofeo Pirelli Pro</td></tr>
+              <tr><td class="pos">P2</td><td>Mugello</td><td>Trofeo Pirelli Pro</td></tr>
+              <tr><td class="pos">P3</td><td>Barcelona</td><td>Trofeo Pirelli Pro</td></tr>
+              <tr><td class="pos">P2</td><td>Monza</td><td>Trofeo Pirelli Pro</td></tr>
+            </tbody>
+          </table>
+          <figure class="photo car">
+            <img src="assets/car26-mugello.jpg" width="1400" height="1050" alt="Ferrari Challenge car 26 in Octane126 livery on the grid at Mugello, door open">
+            <figcaption class="caption">Car 26 on the grid at Mugello.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Chronergy126 -->
+  <article class="project" id="chronergy126">
+    <div class="wrap">
+      <div class="project-head">
+        <p class="kicker">Simulation software</p>
+        <h3>Chronergy126<span class="badge">In development</span></h3>
+        <p class="sub">One platform for everything a race engineer does on a weekend</p>
+      </div>
+      <figure class="photo screen">
+        <img src="assets/chronergy126-events.png" width="1920" height="810" alt="Chronergy126 event overview: a grid of race events across DTM, GT World Challenge, IMSA and NLS with dates, drivers and cars">
+        <figcaption class="caption">The event overview in the current build. Every session, stint, setup and simulation hangs off an event.</figcaption>
+      </figure>
+      <div class="cols">
+        <div class="prose">
+          <p>On the pit wall I kept jumping between spreadsheets, the logger software, a sim tool and a dozen chat threads. Chronergy126 puts it in one web app: run plan, tyre allocation, lap time analysis, setup history, simulation and stint reports.</p>
+          <p>I have worked on Chronergy126 for about two years. I designed the interface in Figma and worked with an external team of six developers and two project managers, running the daily meetings, reviewing the user stories and accepting each delivery. Today I run the project on my own: development, project management and the engineering behind it.</p>
+          <p>The main technical problem was simulation throughput. One run takes about 30 seconds, so we spread the batches over several Azure machines in parallel. That makes a 200-run study usable during a race weekend, not just between events.</p>
+        </div>
+        <div class="prose">
+          <div class="figures">
+            <div><strong>16</strong><span>modules</span></div>
+            <div><strong>300+</strong><span>screens designed in Figma</span></div>
+            <div><strong>~25 min</strong><span>for 200 simulations on 4 cloud machines</span></div>
+          </div>
+          <p>The vehicle model behind it covers multibody transient dynamics, a thermal tyre model fitted to on-track data, a virtual 7-post rig, and track bump profiles rebuilt from logged car data.</p>
+          <p class="stack">Next.js · TypeScript · Tailwind CSS · Python FastAPI · PostgreSQL · Azure · Figma</p>
+          <figure class="photo car">
+            <img src="assets/car26-chronergy.jpg" width="1600" height="1067" alt="Car 26 on the grid with the Chronergy126 name on its door">
+            <figcaption class="caption">Chronergy126 on the door of car 26.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Stint report -->
+  <article class="project" id="automation">
+    <div class="wrap">
+      <div class="project-head">
+        <p class="kicker">Python automation</p>
+        <h3>Stint report</h3>
+        <p class="sub">From two hours of clicking to five minutes, twice a day</p>
+      </div>
+      <div class="cols">
+        <div class="prose">
+          <p>After each stint, the data engineer exported the logger data, clicked through the channels one tab at a time, checked them against limits they kept in their head, and printed graphs one by one. It took up to two hours per report, and there was no guarantee every graph made it in.</p>
+          <p>I replaced it with a Python script. You pick the session file and it does the rest: reads the MoTeC or WinTAX export, computes the math channels and KPIs, flags anything outside its limits, draws every plot in the same style, builds the PDF and sends it to the team's WhatsApp group.</p>
+          <p>The engineers get the same report every time, and I get the time back for driver and setup work.</p>
+        </div>
+        <div>
+          <div class="figures two">
+            <div><strong>~2 h</strong><span>per report by hand</span></div>
+            <div><strong>~5 min</strong><span>with the script</span></div>
+          </div>
+          <ol class="steps">
+            <li>Export the logger data</li>
+            <li>Pick the session file</li>
+            <li>Channels, KPIs, limit checks</li>
+            <li>Plots and PDF</li>
+            <li>Sent to WhatsApp</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Earlier experience -->
+  <section class="history" id="experience">
+    <div class="wrap">
+      <p class="kicker">Before the pit wall</p>
+      <h3>Earlier experience</h3>
+
+      <div class="job">
+        <div class="when"><b>Oreca</b>Mar to Aug 2023<br>Signes, France</div>
+        <div>
+          <h4>Assembly method engineer (internship)</h4>
+          <p class="cars">Ferrari 296 GT3 · Alpine A424 LMDh · FIA WEC, ELMS</p>
+          <p>I worked alongside the mechanics through the build of both cars and wrote the illustrated assembly manual for each, around 350 pages apiece. I also started a weekly meeting between the workshop and the design office so a car that kept changing stayed buildable. Seeing how a top team handles that made me a better race engineer.</p>
+          <div class="job-photos">
+            <figure class="photo">
+              <img src="assets/oreca-alpine-a424.jpg" width="1200" height="676" loading="lazy" alt="Alpine A424 LMDh No. 36 on track at the 2024 6 Hours of Spa-Francorchamps">
+              <figcaption class="caption">Alpine A424, 6 Hours of Spa 2024. Photo: <a href="https://commons.wikimedia.org/wiki/File:2024_6_Hours_of_Spa-Francorchamps_Alpine_Endurance_Team_Alpine_A424_No.36_(DSC04195).jpg" target="_blank" rel="noopener">MarcelX42</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></figcaption>
+            </figure>
+            <figure class="photo">
+              <img src="assets/oreca-ferrari-296-gt3.jpg" width="1200" height="676" loading="lazy" alt="Ferrari 296 GT3 No. 55 on track at the 2024 6 Hours of Spa-Francorchamps">
+              <figcaption class="caption">Ferrari 296 GT3, 6 Hours of Spa 2024. Photo: <a href="https://commons.wikimedia.org/wiki/File:2024_6_Hours_of_Spa-Francorchamps_Vista_AF_Corse_Ferrari_296_GT3_No.55_(DSC05785).jpg" target="_blank" rel="noopener">MarcelX42</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+
+      <div class="job">
+        <div class="when"><b>Saintéloc</b>Nov 2022 to Feb 2023<br>Saint-Étienne, France</div>
+        <div>
+          <h4>Data engineer (internship)</h4>
+          <p class="cars">GT3 · GT4 · Trophée Andros · MoTeC i2 · Excel VBA · SolidWorks</p>
+          <p>I built Excel VBA tools for performance reporting on race weekends, including a parts mileage tracker for the GT4 fleet that warns before a part reaches its limit. I also designed, sourced and welded a spring rate test bench so the team could follow spring rates over the season. For the Trophée Andros cars I redesigned the onboard camera mounts as 3D-printed parts, from 120 g down to 80 g.</p>
+        </div>
+      </div>
+
+      <div class="job">
+        <div class="when"><b>Socofer</b>May to Jul 2022<br>Tours, France</div>
+        <div>
+          <h4>Mechanical design engineer (internship)</h4>
+          <p class="cars">Railway · Solid Edge · Li-ion batteries</p>
+          <p>I ran traction, braking and acceleration calculations for rail vehicles every day. My main project was a lithium-ion battery housing that fights thermal runaway at the cells: on detection, a trap door opens and floods the cells from an onboard glycol-water circuit, and a standard dry riser connection lets the fire brigade plug straight in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="gallery" id="gallery">
+    <div class="wrap">
+      <p class="kicker">Gallery</p>
+      <h3>From the track</h3>
+      <h4 class="gallery-group">Octane126<span>Ferrari Challenge 2025</span></h4>
+      <div class="gallery-grid">
+          <figure>
+            <a href="assets/gallery/octane-monza-shakedown.jpg" data-lightbox><img src="assets/gallery/octane-monza-shakedown.jpg" width="1555" height="1600" loading="lazy" alt="Ferrari 296 Challenge, car 26 shakedown at Monza."></a>
+            <figcaption class="caption">Ferrari 296 Challenge, car 26 shakedown at Monza.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/gallery/octane-team-2025.jpg" data-lightbox><img src="assets/gallery/octane-team-2025.jpg" width="1200" height="1600" loading="lazy" alt="Ferrari Challenge 2025, car 26 group picture."></a>
+            <figcaption class="caption">Ferrari Challenge 2025, car 26 group picture.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/gallery/octane-spa.jpg" data-lightbox><img src="assets/gallery/octane-spa.jpg" width="1200" height="1600" loading="lazy" alt="Ferrari 296 Challenge at Spa."></a>
+            <figcaption class="caption">Ferrari 296 Challenge at Spa.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/gallery/octane-tyre-check.jpg" data-lightbox><img src="assets/gallery/octane-tyre-check.jpg" width="1600" height="1066" loading="lazy" alt="Tyre temperature check."></a>
+            <figcaption class="caption">Tyre temperature check.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/gallery/octane-mugello-p2.jpg" data-lightbox><img src="assets/gallery/octane-mugello-p2.jpg" width="1200" height="1600" loading="lazy" alt="P2, Ferrari Challenge Mugello, race 1."></a>
+            <figcaption class="caption">P2, Ferrari Challenge Mugello, race 1.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/gallery/octane-mugello-win.jpg" data-lightbox><img src="assets/gallery/octane-mugello-win.jpg" width="1180" height="1600" loading="lazy" alt="Ferrari 296 Challenge, car 26 wins at Mugello."></a>
+            <figcaption class="caption">Ferrari 296 Challenge, car 26 wins at Mugello.</figcaption>
+          </figure>
+      </div>
+      <h4 class="gallery-group">Oreca<span>2023</span></h4>
+      <div class="gallery-grid">
+          <figure>
+            <a href="assets/gallery/oreca-296gt3-cockpit.jpg" data-lightbox><img src="assets/gallery/oreca-296gt3-cockpit.jpg" width="1600" height="1200" loading="lazy" alt="Ferrari 296 GT3 shakedown."></a>
+            <figcaption class="caption">Ferrari 296 GT3 shakedown.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/gallery/oreca-296gt3-luc.jpg" data-lightbox><img src="assets/gallery/oreca-296gt3-luc.jpg" width="1600" height="1200" loading="lazy" alt="Ferrari 296 GT3 shakedown at Circuit du Luc."></a>
+            <figcaption class="caption">Ferrari 296 GT3 shakedown at Circuit du Luc.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/gallery/oreca-a424-engine.jpg" data-lightbox><img src="assets/gallery/oreca-a424-engine.jpg" width="1600" height="1200" loading="lazy" alt="Alpine A424 Beta engine tests."></a>
+            <figcaption class="caption">Alpine A424 Beta engine tests.</figcaption>
+          </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section class="skills">
+    <div class="wrap">
+      <p class="kicker">Toolbox</p>
+      <h3>What I work with</h3>
+      <dl>
+        <div><dt>Race engineering</dt><dd>Setup and strategy, run plans, driver debriefs, team and event management</dd></div>
+        <div><dt>Data and telemetry</dt><dd>MoTeC i2 Pro, WinTAX, Sysma, KPI definition, stint reporting</dd></div>
+        <div><dt>Simulation</dt><dd>ChassisSim, lap time simulation, car model development, Abaqus FEA (static and modal)</dd></div>
+        <div><dt>Software</dt><dd>Python, Excel VBA, HTML and CSS, Figma</dd></div>
+        <div><dt>CAD and test</dt><dd>SolidWorks, Solid Edge, test bench design and build</dd></div>
+        <div><dt>Leadership</dt><dd>Led a 6-person race crew and an external team of 6 developers and 2 PMs</dd></div>
+      </dl>
+      <div class="actions">
+        <a class="btn solid" href="assets/hugo-thomas-resume.pdf" target="_blank" rel="noopener">Download the full resume (PDF)</a>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ RECREATION ============ -->
+<section id="recreation">
+  <div class="category">
+    <div class="wrap">
+      <p class="kicker">Category two</p>
+      <h2>Recreation</h2>
+      <p>What I build when I'm not at the track.</p>
+    </div>
+  </div>
+
+  <article class="spindle" id="spindle">
+    <div class="wrap">
+      <p class="kicker">Side project · Web app, iOS app in progress</p>
+      <div class="spindle-title">
+        <img src="assets/spindle-valise.svg" width="96" height="96" alt="Spindle logo, an orange record-player suitcase">
+        <h3>Spindle<span>.fm</span></h3>
+      </div>
+      <p class="sub">A vinyl collection app that feels like your living room</p>
+
+      <div class="cols">
+        <div class="prose">
+          <p>Every record collection app I tried was a list. I wanted mine to feel like standing in front of my shelves. In Spindle your records live on a teak record wall in a warm 3D living room, one cubby per genre, and every feature is an object in that room.</p>
+          <dl class="objects">
+            <dt>The record wall</dt><dd>Swipe through the cubbies. Tap one and its crate slides out like a drawer so you can flip through the sleeves.</dd>
+            <dt>The turntable</dt><dd>Drop the needle and hear a 30-second preview.</dd>
+            <dt>The camera</dt><dd>Add a record by scanning its barcode (exact pressing and market value from Discogs) or by photographing the sleeves.</dd>
+            <dt>The phone</dt><dd>Call a friend and visit their room to browse their shelves.</dd>
+            <dt>The radio</dt><dd>Random previews by station and genre.</dd>
+            <dt>The notebook</dt><dd>Your want list, which warns you before you buy a record twice.</dd>
+            <dt>The mailbox</dt><dd>Lend or pass records on to friends.</dd>
+          </dl>
+          <p class="stack">Next.js · React · three.js · Supabase · SwiftUI</p>
+          <p style="margin-top: 24px;"><a class="btn spindle-btn" href="https://www.the-spindle.xyz" target="_blank" rel="noopener">Open Spindle ↗</a></p>
+        </div>
+        <div class="screens">
+          <figure><img src="assets/spindle-wall.jpg" width="430" height="900" alt="Spindle: a teak record wall with one cubby per genre above a credenza with a turntable, phone, radio and camera"><figcaption class="caption">The record wall</figcaption></figure>
+          <figure><img src="assets/spindle-turntable.jpg" width="430" height="900" alt="Spindle: close-up of the turntable with a record on the platter and a play button"><figcaption class="caption">On the turntable</figcaption></figure>
+          <figure><img src="assets/spindle-stats.jpg" width="430" height="900" alt="Spindle: collection statistics with record count, total value and a breakdown by genre"><figcaption class="caption">Collection stats</figcaption></figure>
+        </div>
+      </div>
+
+      <!-- TODO: swap this block for the video when it's ready, e.g.
+           <video class="video" src="assets/spindle.mp4" poster="assets/spindle-room.jpg" controls playsinline></video> -->
+      <div class="video-slot">Video walkthrough coming soon</div>
+    </div>
+  </article>
+</section>
+
+</main>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <p class="kicker">Contact</p>
+    <h2>Let's talk</h2>
+    <dl class="contact-list">
+      <div><dt>Email</dt><dd><a href="mailto:ht.engineer10@gmail.com">ht.engineer10@gmail.com</a></dd></div>
+      <div><dt>Phone</dt><dd><a href="tel:+41783229715">+41 78 322 97 15</a></dd></div>
+      <div><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/hugo-thomas-8132171ba/" target="_blank" rel="noopener">Hugo Thomas</a></dd></div>
+      <div><dt>Resume</dt><dd><a href="assets/hugo-thomas-resume.pdf" target="_blank" rel="noopener">Download PDF</a></dd></div>
+    </dl>
+    <footer>© 2026 Hugo Thomas · Zürich</footer>
   </div>
 </section>
-</div>
 
-<!-- ORECA -->
-<div class="full-width" id="oreca">
-<section class="mech-section">
-  <div class="mech-section-inner">
-    <div class="mech-section-left">
-      <span class="mech-card-period">2023 – 2024</span>
-      <h3 class="mech-section-company">ORECA</h3>
-      <span class="mech-card-role">Programme Engineer</span>
-      <div class="divider"></div>
-      <div class="tag-row">
-        <span class="tag">FIA WEC</span>
-        <span class="tag">ELMS</span>
-        <span class="tag">Ferrari 296 GT3</span>
-        <span class="tag">Alpine A424 LMDh</span>
-      </div>
-    </div>
-    <div class="mech-section-right">
-      <p class="mech-section-body">
-        Joined ORECA's programme engineering team on two of the most demanding endurance projects in GT racing: the Ferrari 296 GT3 and the Alpine A424 LMDh, competing in FIA WEC and ELMS. Day-to-day work meant being directly alongside the mechanics through the full car assembly process — understanding every system, every interface, every sequence.
-      </p>
-      <div class="mech-card-highlight" style="margin-top: 2rem;">
-        Produced a 350-page illustrated assembly manual for each platform — the Ferrari 296 GT3 and the Alpine A424 LMDh — documenting every assembly step with technical references for the mechanics. Two documents, two cars, two championships.
-      </div>
-    </div>
-  </div>
-</section>
-</div>
-
-<!-- SOCOFER -->
-<div class="full-width" id="socofer">
-<section class="mech-section">
-  <div class="mech-section-inner">
-    <div class="mech-section-left">
-      <span class="mech-card-period">2022</span>
-      <h3 class="mech-section-company">SOCOFER</h3>
-      <span class="mech-card-role">Mechanical Design Intern<br>Railway Engineering</span>
-      <div class="divider"></div>
-      <div class="tag-row">
-        <span class="tag">SolidWorks</span>
-        <span class="tag">Thermal Runaway</span>
-        <span class="tag">Li-Ion Battery</span>
-        <span class="tag">Railway</span>
-      </div>
-    </div>
-    <div class="mech-section-right">
-      <p class="mech-section-body">
-        Assigned to the TFE (Traction, Braking, Energy) department at a globally recognised railway vehicle manufacturer. The brief: design a lithium-ion battery housing capable of actively suppressing thermal runaway while keeping the pack sealed and the solution compliant with railway safety standards — a problem with no clean off-the-shelf answer.
-      </p>
-      <p class="mech-section-body" style="margin-top: 1.5rem;">
-        The challenge with thermal runaway in Li-ion cells is that you need to attack the cells directly, not just contain the exterior. The solution I developed integrates a trap-door mechanism — triggered on thermal runaway detection — that connects to a glycol water circuit ("colonne humide") stored in onboard tanks. This allows suppression fluid to reach the cells internally while the housing stays sealed under normal conditions.
-      </p>
-      <div class="mech-card-highlight" style="margin-top: 2rem;">
-        The system also provides a standardised dry column connection point ("colonne sèche") for fire services to plug in directly — a detail that bridges the onboard system with emergency response infrastructure. Full CAD model delivered in SolidWorks.
-      </div>
-    </div>
-  </div>
-</section>
-</div>
-
-<!-- SAINTELOC -->
-<div class="full-width" id="sainteloc">
-<section class="mech-section">
-  <div class="mech-section-inner">
-    <div class="mech-section-left">
-      <span class="mech-card-period">2022 – 2023</span>
-      <h3 class="mech-section-company">SAINTéLOC<br>Racing</h3>
-      <span class="mech-card-role">Data Engineering Intern</span>
-      <div class="divider"></div>
-      <div class="tag-row">
-        <span class="tag">MoTeC i2</span>
-        <span class="tag">VBA / Excel</span>
-        <span class="tag">GT3 / GT4</span>
-        <span class="tag">SolidWorks</span>
-        <span class="tag">3D Printing</span>
-        <span class="tag">Trophée Andros</span>
-      </div>
-    </div>
-    <div class="mech-section-right">
-      <p class="mech-section-body">
-        Embedded with the data and performance engineering team across GT3, GT4, WRC2, and the Trophée Andros electric ice racing championship. Working with engineers Benjamin Rosse, Kilian Ballet, and Rémi Pouzet, the role spanned multiple championships simultaneously — building analysis tools, supporting race weekends, and doing mechanical design work in parallel.
-      </p>
-      <p class="mech-section-body" style="margin-top: 1.5rem;">
-        On the software side, key deliverable was the parts mileage tracking system — an Excel/VBA tool that cross-references events, chassis IDs, and component references to track accumulated kilometres per part across the full GT4 fleet and flag wear thresholds before failures happen.
-      </p>
-      <div class="mech-card-highlight" style="margin-top: 2rem;">
-        On the mechanical side: redesigned the onboard camera mounts for the Trophée Andros cars in SolidWorks, replacing aluminium alloy brackets with 3D-printed ABS parts. Mass reduction from 120g to 80g — a 33% saving that lowered the car's centre of gravity without compromising adjustment range.
-      </div>
-    </div>
-  </div>
-</section>
-</div>
-
-<!-- FOOTER / CONTACT -->
-<footer id="contact">
-  <div class="footer-left">
-    Hugo Thomas
-  </div>
-  <div class="footer-contact">
-    <div class="contact-item">
-      <span class="contact-label">Location</span>
-      <span class="contact-value">Zürich, Switzerland</span>
-    </div>
-    <div class="contact-item">
-      <span class="contact-label">Phone</span>
-      <span class="contact-value">+41 78 322 97 15</span>
-    </div>
-    <div class="contact-item">
-      <span class="contact-label">LinkedIn</span>
-      <a href="https://www.linkedin.com/in/hugo-thomas-8132171ba/" target="_blank" class="contact-link">Hugo Thomas</a>
-    </div>
-  </div>
-</footer>
-
+<dialog class="lightbox" id="lightbox">
+  <button type="button" class="lightbox-close" aria-label="Close">×</button>
+  <img alt="">
+  <p class="caption"></p>
+</dialog>
 <script>
-  const hamburger = document.getElementById('hamburger');
-  const overlay = document.getElementById('menuOverlay');
-  const menuClose = document.getElementById('menuClose');
-  const menuItems = document.querySelectorAll('.menu-item');
-
-  function openMenu() { overlay.classList.add('open'); }
-  function closeMenu() { overlay.classList.remove('open'); }
-
-  hamburger.addEventListener('click', openMenu);
-  menuClose.addEventListener('click', closeMenu);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeMenu(); });
-  menuItems.forEach(item => item.addEventListener('click', closeMenu));
-
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+  const box = document.getElementById('lightbox');
+  document.querySelectorAll('[data-lightbox]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    box.querySelector('img').src = a.href;
+    box.querySelector('img').alt = a.querySelector('img').alt;
+    box.querySelector('.caption').textContent = a.closest('figure').querySelector('figcaption').textContent;
+    box.showModal();
+  }));
+  box.addEventListener('click', (e) => { if (e.target === box || e.target.closest('.lightbox-close')) box.close(); });
 </script>
 </body>
 </html>
