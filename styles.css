@@ -240,11 +240,15 @@ h1, h2, h3, h4 {
 .screens figure { margin: 0; }
 .screens figure:nth-child(2) { transform: translateY(32px); }
 .screens .caption { color: #8a6a4f; }
-.video-slot {
-  margin-top: 72px; padding: 48px 24px; display: grid; place-items: center;
-  border: 1.5px dashed #b8946f; border-radius: 4px; background: var(--panneau);
-  font: 400 14px/1.4 var(--mono); color: #8a6a4f; text-align: center;
+.spindle-video {
+  margin-top: 72px; display: grid; grid-template-columns: minmax(0, 360px) 1fr;
+  gap: clamp(32px, 5vw, 72px); align-items: center;
 }
+.spindle-video video {
+  display: block; width: 100%; height: auto; border-radius: 14px;
+  border: 6px solid var(--cacao); background: var(--cacao);
+}
+.spindle-video .prose { font-size: 19px; }
 
 /* ---------- contact ---------- */
 .contact { background: var(--ink); color: var(--paper); padding: clamp(56px, 8vw, 104px) 0 40px; }
@@ -265,6 +269,8 @@ h1, h2, h3, h4 {
   .job { grid-template-columns: 1fr; gap: 12px; }
   .skills dl { grid-template-columns: 1fr 1fr; }
   .contact-list { grid-template-columns: 1fr 1fr; }
+  .spindle-video { grid-template-columns: 1fr; justify-items: center; }
+  .spindle-video video { max-width: 360px; }
 }
 @media (max-width: 560px) {
   body { font-size: 16px; }
